@@ -5,6 +5,7 @@
 #define BTN_COUNT 70
 HWND g_btns[BTN_COUNT];
 const int ROWS[5] = { 14, 14, 14, 14, 14 }; // кнопок в р€дах, 5*14=70
+const wchar_t* RUS_LAYOUT = LR"(йцукенгшщзхъ\фывапролджэ€чсмитьбю.Є)";
 
 
 ///////////////////
@@ -13,11 +14,11 @@ const int ROWS[5] = { 14, 14, 14, 14, 14 }; // кнопок в р€дах, 5*14=70
 
 
 ///////////////////
-
-
-
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int);
+
+
 
 
 ///////////////////
@@ -64,10 +65,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         case WM_CREATE: {
 			// —оздаЄм 70 кнопок(уч.эскейп, дел,бэкспэйс, таб, ¬»Ќ, ЁфЁн, стрелки, райттаб, райтальт/ райтцтрл) без позиционировани€ (временно)
 			for (int i = 0; i < BTN_COUNT; ++i) {
-				wchar_t txt[4]; wsprintf(txt, L"%d", i + 1);
-				g_btns[i] = CreateWindowW(L"BUTTON", txt,
-					WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-					0, 0, 0, 0, hwnd, (HMENU)(INT_PTR)i, NULL, NULL);
+                // –азмер буфера должен вмещать строку и завершающий ноль (например, "69" + '\0' = 3 символа)
+                wchar_t txt[4];
+                // —оздаЄм кнопки с буквами русского алфавита
+
+                if (i < 35) {
+                    // ƒл€ первых 35 кнопок берем буквы= 33 + "\" + "."
+                    txt[0] = RUS_LAYOUT[i];
+                    txt[1] = L'\0';
+                }
+                else {
+                    // ƒл€ остальных кнопок записываем индекс в виде строки
+                    swprintf(txt, sizeof(txt) / sizeof(wchar_t), L"%d", i);
+                }
+                g_btns[i] = CreateWindow(L"BUTTON", txt,
+                    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+                    0, 0, 0, 0, hwnd, (HMENU)(INT_PTR)i, NULL, NULL);
 			}
 			return 0;
 		}
