@@ -1,0 +1,23 @@
+# Скрытая папка настроек Visual Studio
+.vs/
+
+# Папки сборки и временных файлов (включая proj-.6a92d3ac)
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.tlog/
+
+# Пользовательские файлы решений и проектов
+proj-on-wkreen-keyboqrg.slnx
+*.vcxproj.user
+
+# Расширения временных файлов компиляции
+*.obj
+*.log
+*.recipe
+*.ilk
+*.txt
+*.idb
+*.pdb
+*.lastbuildstate
