@@ -162,11 +162,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     wc.lpszClassName = L"RawApp";
     RegisterClass(&wc);
 
-    RECT r = { 0, 0, 300, 600 };
-    // usin' style WS_POPUPWINDOW вместо WS_OVERLAPPEDWINDOW, чтобы убрать лишний фокусный заголовок Windows,but save bordrs 4 AdjustWindowRect work properly.
+    RECT r = { 0, 0, 420, 200 };
+    // // usin' style WS_POPUPWINDOW instead of WS_OVERLAPPEDWINDO to remove the Windows' title bar of the window but still keep the window borders so that AdjustWindowRect works correctly.
     AdjustWindowRect(&r, WS_POPUPWINDOW | WS_CAPTION, FALSE);
 
-    // now -- using right CreateWindowEx +providing extndd style WS_EX_NOACTIVATE + WS_EX_TOPMOST
+    // now -- using CreateWindowEx +providing extndd style WS_EX_NOACTIVATE + WS_EX_TOPMOST
     HWND hwnd = CreateWindowEx(
         WS_EX_NOACTIVATE | WS_EX_TOPMOST,
         L"RawApp", L"70 Buttons",
