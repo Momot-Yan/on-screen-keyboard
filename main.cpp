@@ -49,11 +49,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int);
 
 
 
-int main()
-{
-	return 0;
-}
-
 
 
 ///////////////////
