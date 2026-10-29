@@ -8,7 +8,25 @@ HWND g_btns[BTN_COUNT];
 const int ROW_COUNT = 6;
 // Количество кнопок в каждом из 6 рядов:
 const int ROWS[ROW_COUNT] = { 21, 21, 19, 17, 17, 15 }; 
-const wchar_t* RUS_LAYOUT = LR"(йцукенгшщзхъ\фывапролджэячсмитьбю.ё)";
+const wchar_t* BUTTON_LABELS[BTN_COUNT] = {
+    // Ряд 1 (21 кнопка): Мультимедиа + Esc + F1-F12 + Системные
+    L"Mute", L"Vol-", L"Vol+", L"Web", L"Calc", L"Esc", L"F1", L"F2", L"F3", L"F4", L"F5", L"F6", L"F7", L"F8", L"F9", L"F10", L"F11", L"F12", L"PrtSc", L"ScrLk", L"Pause",
+
+    // Ряд 2 (21 кнопка): Основной цифровой ряд + Управление + NumPad (верх)
+    L"ё", L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9", L"0", L"-", L"=", L"Backspace", L"Ins", L"Home", L"PgUp", L"Num", L"/", L"*", L"-",
+
+    // Ряд 3 (19 кнопок): Tab + Буквы Й-Ъ + \ + Управление + NumPad 7-9
+    L"Tab", L"й", L"ц", L"у", L"к", L"е", L"н", L"г", L"ш", L"щ", L"з", L"х", L"ъ", L"\\", L"Del", L"End", L"PgDn", L"7", L"8", L"9", L"+",
+
+    // Ряд 4 (17 кнопок): Caps + Буквы Ф-Э + Enter + NumPad 4-6
+    L"Caps", L"ф", L"ы", L"в", L"а", L"п", L"р", L"о", L"л", L"д", L"ж", L"э", L"Enter", L"4", L"5", L"6", L"Enter ",
+
+    // Ряд 5 (17 кнопок): LShift + Буквы Я-Ю + . + RShift + Стрелка Вверх + NumPad 1-3
+    L"Shift", L"я", L"ч", L"с", L"м", L"и", L"т", L"ь", L"б", L"ю", L".", L"Shift ", L"↑", L"1", L"2", L"3", L"Enter  ",
+
+    // Ряд 6 (15 кнопок): Модификаторы + Пробел + Стрелки + NumPad 0 и Точка
+    L"Ctrl", L"Win", L"Alt", L"               Space               ", L"Alt", L"Win", L"Menu", L"Ctrl", L"←", L"↓", L"→", L"      0      ", L"."
+};
 
 
 ///////////////////
