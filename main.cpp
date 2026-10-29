@@ -1,11 +1,14 @@
-
+п»ї
 #include <iostream>
 #include <windows.h>
+#include <string>
 
-#define BTN_COUNT 70
+#define BTN_COUNT 110
 HWND g_btns[BTN_COUNT];
-const int ROWS[5] = { 14, 14, 14, 14, 14 }; // кнопок в рядах, 5*14=70
-const wchar_t* RUS_LAYOUT = LR"(йцукенгшщзхъ\фывапролджэячсмитьбю.ё)";
+const int ROW_COUNT = 6;
+// РљРѕР»РёС‡РµСЃС‚РІРѕ РєРЅРѕРїРѕРє РІ РєР°Р¶РґРѕРј РёР· 6 СЂСЏРґРѕРІ:
+const int ROWS[ROW_COUNT] = { 21, 21, 19, 17, 17, 15 }; 
+const wchar_t* RUS_LAYOUT = LR"(Р№С†СѓРєРµРЅРіС€С‰Р·С…СЉ\С„С‹РІР°РїСЂРѕР»РґР¶СЌСЏС‡СЃРјРёС‚СЊР±СЋ.С‘)";
 
 
 ///////////////////
@@ -58,19 +61,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 	switch (msg) {
         case WM_CREATE: {
-			// Создаём 70 кнопок(уч.эскейп, дел,бэкспэйс, таб, ВИН, ЭфЭн, стрелки, райттаб, райтальт/ райтцтрл) без позиционирования (временно)
+			// РЎРѕР·РґР°С‘Рј 70 РєРЅРѕРїРѕРє(СѓС‡.СЌСЃРєРµР№Рї, РґРµР»,Р±СЌРєСЃРїСЌР№СЃ, С‚Р°Р±, Р’РРќ, Р­С„Р­РЅ, СЃС‚СЂРµР»РєРё, СЂР°Р№С‚С‚Р°Р±, СЂР°Р№С‚Р°Р»СЊС‚/ СЂР°Р№С‚С†С‚СЂР») Р±РµР· РїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёСЏ (РІСЂРµРјРµРЅРЅРѕ)
 			for (int i = 0; i < BTN_COUNT; ++i) {
-                // Размер буфера должен вмещать строку и завершающий ноль (например, "69" + '\0' = 3 символа)
+                // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° РґРѕР»Р¶РµРЅ РІРјРµС‰Р°С‚СЊ СЃС‚СЂРѕРєСѓ Рё Р·Р°РІРµСЂС€Р°СЋС‰РёР№ РЅРѕР»СЊ (РЅР°РїСЂРёРјРµСЂ, "69" + '\0' = 3 СЃРёРјРІРѕР»Р°)
                 wchar_t txt[4];
-                // Создаём кнопки с буквами русского алфавита
+                // РЎРѕР·РґР°С‘Рј РєРЅРѕРїРєРё СЃ Р±СѓРєРІР°РјРё СЂСѓСЃСЃРєРѕРіРѕ Р°Р»С„Р°РІРёС‚Р°
 
                 if (i < 35) {
-                    // Для первых 35 кнопок берем буквы= 33 + "\" + "."
+                    // Р”Р»СЏ РїРµСЂРІС‹С… 35 РєРЅРѕРїРѕРє Р±РµСЂРµРј Р±СѓРєРІС‹= 33 + "\" + "."
                     txt[0] = RUS_LAYOUT[i];
                     txt[1] = L'\0';
                 }
                 else {
-                    // Для остальных кнопок записываем индекс в виде строки
+                    // Р”Р»СЏ РѕСЃС‚Р°Р»СЊРЅС‹С… РєРЅРѕРїРѕРє Р·Р°РїРёСЃС‹РІР°РµРј РёРЅРґРµРєСЃ РІ РІРёРґРµ СЃС‚СЂРѕРєРё
                     swprintf(txt, sizeof(txt) / sizeof(wchar_t), L"%d", i);
                 }
                 g_btns[i] = CreateWindow(L"BUTTON", txt,
@@ -158,7 +161,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     RegisterClass(&wc);
 
     RECT r = { 0, 0, 420, 200 };
-    // // usin' style WS_POPUPWINDOW instead of WS_OVERLAPPEDWINDO to remove the Windows' title bar of the window but still keep the window borders so that AdjustWindowRect works correctly.
+    // // usin' style WS_POPUPWINDOW instead of WS_OVERLAPPEDWINDO to remove the Windows'В title bar of the window but still keep the window borders so that AdjustWindowRect works correctly.
     AdjustWindowRect(&r, WS_POPUPWINDOW | WS_CAPTION, FALSE);
 
     // now -- using CreateWindowEx +providing extndd style WS_EX_NOACTIVATE + WS_EX_TOPMOST
