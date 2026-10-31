@@ -93,30 +93,61 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 			((MINMAXINFO*)lp)->ptMinTrackSize.x = r.right - r.left;
 			((MINMAXINFO*)lp)->ptMinTrackSize.y = r.bottom - r.top;
 			return 0;
-		}
-        case WM_SIZE: {
+		}        case WM_SIZE: {
             client_w = LOWORD(lp);
             client_h = HIWORD(lp);
+
             int top_h = client_h / 4;
             int btn_area_top = 1 + top_h;
             int btn_area_h = client_h - btn_area_top - 1;
             int btn_area_w = client_w - 2;
 
-            int row_start = 0;
+            int row_h = btn_area_h / ROW_COUNT;
+            int global_idx = 0;
+
             // evaluating all 6 physical rows 2 prevent layout clippin'
             for (int row = 0; row < ROW_COUNT; ++row) {
                 int btns_in_row = ROWS[row];
 
-                int btn_w = btn_area_w / btns_in_row;
-                int btn_h = btn_area_h / 5;
-                int y = btn_area_top + row * btn_h;
-
-                // positionin' individual child buttons within the current row segment
+                // first pass: computing the aggregate Key Unit weight of the entire row segment
+                double total_units = 0.0;
                 for (int col = 0; col < btns_in_row; ++col) {
-                    int x = 1 + col * btn_w;
-                    MoveWindow(g_btns[row_start + col], x, y, btn_w, btn_h, TRUE);
+                    int idx = global_idx + col;
+                    std::wstring label = BUTTON_LABELS[idx];
+
+                    if (label.find(L"Space") != std::wstring::npos) total_units += 6.0;
+                    else if (label == L"Backspace" || label == L"Shift" || label == L"Shift ") total_units += 2.0;
+                    else if (label == L"Enter" || label == L"      0      ") total_units += 2.25;
+                    else if (label == L"Tab" || label == L"Caps" || label == L"Ctrl") total_units += 1.5;
+                    else total_units += 1.0;
                 }
-                row_start += btns_in_row;
+
+                double unit_w = (double)btn_area_w / total_units;
+                double current_x = 1.0;
+                int y = btn_area_top + row * row_h;
+
+                // second pass: positioning indvdl child btns bas'd on calcltd proportions
+                for (int col = 0; col < btns_in_row; ++col) {
+                    int idx = global_idx + col;
+                    std::wstring label = BUTTON_LABELS[idx];
+
+                    double w_multiplier = 1.0;
+                    if (label.find(L"Space") != std::wstring::npos) w_multiplier = 6.0;
+                    else if (label == L"Backspace" || label == L"Shift" || label == L"Shift ") w_multiplier = 2.0;
+                    else if (label == L"Enter" || label == L"      0      ") w_multiplier = 2.25;
+                    else if (label == L"Tab" || label == L"Caps" || label == L"Ctrl") w_multiplier = 1.5;
+
+                    int btn_w = (int)(w_multiplier * unit_w);
+
+                    // preventing pixel gaps on the right edge due 2 float-2-int trunctn' when col == last_idx
+                    if (col == btns_in_row - 1) {
+                        btn_w = btn_area_w - (int)current_x + 1;
+                    }
+
+                    MoveWindow(g_btns[idx], (int)current_x, y, btn_w, row_h, TRUE);
+                    current_x += btn_w;
+                }
+                global_idx += btns_in_row;
             }
             InvalidateRect(hwnd, NULL, TRUE);
             return 0;
@@ -124,13 +155,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         case WM_PAINT: {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
-            RECT rc; GetClientRect(hwnd, &rc);
+            RECT rc;
+            GetClientRect(hwnd, &rc);
             int w = rc.right, h = rc.bottom;
             int top_h = h / 4;
 
             HBRUSH bg = (HBRUSH)(COLOR_WINDOW + 1);
             FillRect(hdc, &rc, bg);
 
+            // drawing sharp boundary outline lines 4 the entire frame edge
             HPEN pen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
             HGDIOBJ old_pen = SelectObject(hdc, pen);
             MoveToEx(hdc, 0, 0, NULL); LineTo(hdc, w, 0);
@@ -140,6 +173,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             SelectObject(hdc, old_pen);
             DeleteObject(pen);
 
+            // materializin' the separate gray top deck pane 4 suggestions info display
             RECT top_rc = { 1, 1, w - 1, 1 + top_h };
             HBRUSH top_brush = CreateSolidBrush(RGB(220, 220, 220));
             FillRect(hdc, &top_rc, top_brush);
@@ -153,11 +187,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             return 0;
     }
 
-	return DefWindowProc(hwnd, msg, wp, lp);
+    return DefWindowProc(hwnd, msg, wp, lp);
 }
-
-
-///////////////////
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     WNDCLASS wc = { 0 };
@@ -168,14 +199,14 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, int) {
     wc.lpszClassName = L"RawApp";
     RegisterClass(&wc);
 
-    RECT r = { 0, 0, 420, 200 };
+    RECT r = { 0, 0, 1200, 200 };
     // strippin' the OS title bar via WS_POPUPWINDOW while bypassin' default frame geometry
     AdjustWindowRect(&r, WS_POPUPWINDOW | WS_CAPTION, FALSE);
 
     // initlzn' CreateWindowEx w/ xtendd styles 2 enforce clean click-through immunity + absolute topmost dominance
     HWND hwnd = CreateWindowEx(
         WS_EX_NOACTIVATE | WS_EX_TOPMOST,
-        L"RawApp", L"70 Buttons",
+        L"RawApp", L"110 Buttons Keyboard",
         WS_POPUPWINDOW | WS_CAPTION | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT,
         r.right - r.left, r.bottom - r.top,
